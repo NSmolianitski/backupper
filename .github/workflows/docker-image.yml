@@ -1,0 +1,35 @@
+name: CI
+
+on: 
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+env:
+  REGISTRY_IMAGE_NAME: ${{ vars.DOCKER_REGISTRY }}/${{ vars.DOCKER_IMAGE_NAME }}:latest
+
+jobs:
+  docker-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Log into docker registry ${{ env.DOCKER_REGISTRY }}
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ${{ vars.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build docker image
+        run: docker build -t ${{ env.REGISTRY_IMAGE_NAME }} .
+
+      - name: Push image to docker registry
+        run: docker push ${{ env.REGISTRY_IMAGE_NAME }}

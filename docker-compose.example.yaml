@@ -1,0 +1,14 @@
+services:
+  backup:
+    image: backup
+    environment:
+      - RESTIC_REPOSITORY=${RESTIC_REPOSITORY}
+      - RESTIC_PASSWORD=${RESTIC_PASSWORD}
+      - RCLONE_REMOTE=${RCLONE_REMOTE}
+    volumes:
+      - ./path/to/data:/data # папка с данными, для которых нужно сделать резервную копию
+      - ./path/to/restic/backup:${RESTIC_REPOSITORY} # папка, в которой будет локальный репозиторий restic (тот же )
+      - ./rclone.conf:/root/.config/rclone/ # путь до rclone.conf
+      - ./cron.conf:/etc/crontabs/root # путь до cron.conf
+    restart: unless-stopped
+    
